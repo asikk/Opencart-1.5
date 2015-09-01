@@ -117,13 +117,7 @@ class ControllerPaymentWayforpay extends Controller
 
             $this->load->model('checkout/order');
 
-            $dataOrder = array(
-                'notify' => false,
-                'order_status_id' => $this->config->get('wayforpay_order_status_id'),
-                'comment' => $message,
-            );
-
-            $this->model_checkout_order->addOrderHistory($order_id, $dataOrder);
+            $this->model_checkout_order->confirm($order_id, $this->config->get('wayforpay_order_status_id'));
 
             $this->redirect($this->url->link('checkout/success'));
         } else {
@@ -168,13 +162,7 @@ class ControllerPaymentWayforpay extends Controller
 
             $this->load->model('checkout/order');
 
-            $dataOrder = array(
-                'notify' => false,
-                'order_status_id' => $this->config->get('wayforpay_order_status_id'),
-                'comment' => $message,
-            );
-
-            $this->model_checkout_order->addOrderHistory($order_id, $dataOrder);
+            $this->model_checkout_order->confirm($order_id, $this->config->get('wayforpay_order_status_id'));
 
             echo $w4p->getAnswerToGateWay($data);
         } else {
