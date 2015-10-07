@@ -13,8 +13,8 @@
     ?>
 
 <div class="buttons">
-    <div class="pull-right">
-        <input type="submit" value="<?php echo $button_confirm; ?>" id="button-confirm" data-loading-text="<?php echo $text_loading; ?>" class="btn btn-primary" />
+    <div class="right">
+        <input type="submit" value="<?php echo $button_confirm; ?>" id="button-confirm" data-loading-text="<?php echo $text_loading; ?>" class="btn btn-primary button" />
     </div>
 </div>
 </form>
