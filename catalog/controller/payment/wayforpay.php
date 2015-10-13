@@ -49,7 +49,7 @@ class ControllerPaymentWayforpay extends Controller
                 $order['currency_code'],
                 $order['currency_value'],
                 false
-            ));
+            ), 2);
             $productQty[] = $product['quantity'];
         }
 
