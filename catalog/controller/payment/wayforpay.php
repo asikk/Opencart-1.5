@@ -16,6 +16,13 @@ class ControllerPaymentWayforpay extends Controller
         $serviceUrl = $this->config->get('wayforpay_serviceUrl');
         $returnUrl = $this->config->get('wayforpay_returnUrl');
 
+        $amount = $this->currency->format(
+            $order['total'],
+            $order['currency_code'],
+            $order['currency_value'],
+            false
+        );
+
         $fields = array(
             'orderReference' => $order_id . WayForPay::ORDER_SEPARATOR . time(),
             'merchantAccount' => $this->config->get('wayforpay_merchant'),
@@ -23,7 +30,7 @@ class ControllerPaymentWayforpay extends Controller
             'merchantAuthType' => 'simpleSignature',
             'merchantDomainName' => $_SERVER['HTTP_HOST'],
             'merchantTransactionSecureType' => 'AUTO',
-            'amount' => round($order['total'], 2),
+            'amount' => round($amount, 2),
             'currency' => $order['currency_code'],
             'serviceUrl' => $serviceUrl,
             'returnUrl' => $returnUrl,
@@ -37,7 +44,12 @@ class ControllerPaymentWayforpay extends Controller
         $products = $this->model_account_order->getOrderProducts($order_id);
         foreach ($products as $product) {
             $productNames[] =  str_replace(["'", '"', '&#39;'], ['', '', ''], htmlspecialchars_decode($product['name']));
-            $productPrices[] = round($product['price']);
+            $productPrices[] = round($this->currency->format(
+                $product['price'],
+                $order['currency_code'],
+                $order['currency_value'],
+                false
+            ));
             $productQty[] = $product['quantity'];
         }
 
