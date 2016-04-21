@@ -24,17 +24,17 @@ class ControllerPaymentWayforpay extends Controller
         );
 
         $fields = array(
-            'orderReference' => $order_id . WayForPay::ORDER_SEPARATOR . time(),
-            'merchantAccount' => $this->config->get('wayforpay_merchant'),
-            'orderDate' => strtotime($order['date_added']),
-            'merchantAuthType' => 'simpleSignature',
-            'merchantDomainName' => $_SERVER['HTTP_HOST'],
+            'orderReference'                => $order_id . WayForPay::ORDER_SEPARATOR . time(),
+            'merchantAccount'               => $this->config->get('wayforpay_merchant'),
+            'orderDate'                     => strtotime($order['date_added']),
+            'merchantAuthType'              => 'simpleSignature',
+            'merchantDomainName'            => $_SERVER['HTTP_HOST'],
             'merchantTransactionSecureType' => 'AUTO',
-            'amount' => round($amount, 2),
-            'currency' => $order['currency_code'],
-            'serviceUrl' => $serviceUrl,
-            'returnUrl' => $returnUrl,
-            'language' => $this->config->get('wayforpay_language')
+            'amount'                        => round($amount, 2),
+            'currency'                      => $order['currency_code'],
+            'serviceUrl'                    => $serviceUrl,
+            'returnUrl'                     => $returnUrl,
+            'language'                      => $this->config->get('wayforpay_language')
         );
 
         $productNames = array();
@@ -43,7 +43,7 @@ class ControllerPaymentWayforpay extends Controller
         $this->load->model('account/order');
         $products = $this->model_account_order->getOrderProducts($order_id);
         foreach ($products as $product) {
-            $productNames[] =  str_replace(["'", '"', '&#39;', '&'], '', htmlspecialchars_decode($product['name']));
+            $productNames[] = str_replace(array("'", '"', '&#39;', '&'), '', htmlspecialchars_decode($product['name']));
             $productPrices[] = round($this->currency->format(
                 $product['price'],
                 $order['currency_code'],
@@ -105,6 +105,7 @@ class ControllerPaymentWayforpay extends Controller
 
         if ($order_info['order_status_id'] == 0) {
             $this->model_checkout_order->confirm($order_id, $this->config->get('wayforpay_order_status_progress_id'), 'WayForPay');
+
             return;
         }
 
@@ -223,6 +224,7 @@ class WayForPay
     /**
      * @param $option
      * @param $keys
+     *
      * @return string
      */
     public function getSignature($option, $keys)
@@ -242,12 +244,14 @@ class WayForPay
         }
 
         $hash = implode(self::SIGNATURE_SEPARATOR, $hash);
+
         return hash_hmac('md5', $hash, $this->getSecretKey());
     }
 
 
     /**
      * @param $options
+     *
      * @return string
      */
     public function getRequestSignature($options)
@@ -257,6 +261,7 @@ class WayForPay
 
     /**
      * @param $options
+     *
      * @return string
      */
     public function getResponseSignature($options)
@@ -267,6 +272,7 @@ class WayForPay
 
     /**
      * @param array $data
+     *
      * @return string
      */
     public function getAnswerToGateWay($data)
@@ -274,8 +280,8 @@ class WayForPay
         $time = time();
         $responseToGateway = array(
             'orderReference' => $data['orderReference'],
-            'status' => 'accept',
-            'time' => $time
+            'status'         => 'accept',
+            'time'           => $time
         );
         $sign = array();
         foreach ($responseToGateway as $dataKey => $dataValue) {
@@ -290,15 +296,16 @@ class WayForPay
 
     /**
      * @param $response
+     *
      * @return bool|string
      */
     public function isPaymentValid($response)
     {
-        
+
         if (!isset($response['merchantSignature']) && isset($response['reason'])) {
             return $response['reason'];
         }
-		$sign = $this->getResponseSignature($response);
+        $sign = $this->getResponseSignature($response);
         if ($sign != $response['merchantSignature']) {
             return 'An error has occurred during payment';
         }
