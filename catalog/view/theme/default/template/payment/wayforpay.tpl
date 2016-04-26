@@ -14,7 +14,7 @@
 
 <div class="buttons">
     <div class="right">
-        <input type="submit" value="<?php echo $button_confirm; ?>" id="button-confirm" data-loading-text="<?php echo $text_loading; ?>" class="btn btn-primary button" />
+        <input type="submit" value="<?php echo $button_confirm; ?>" id="button-confirm" data-loading-text="<?php echo !empty($text_loading)?$text_loading:''; ?>" class="btn btn-primary button" />
     </div>
 </div>
 </form>
