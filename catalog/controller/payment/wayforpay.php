@@ -130,8 +130,19 @@ class ControllerPaymentWayforpay extends Controller
 
             $this->load->model('checkout/order');
 
-            $this->model_checkout_order->confirm($order_id, $this->config->get('wayforpay_order_status_id'));
-
+            /**
+             * check current order status if no eq wayforpay_order_status_id then confirm
+             */
+            $orderInfo = $this->model_checkout_order->getOrder($order_id);
+            if (
+                $orderInfo &&
+                $orderInfo['order_status_id'] == $this->config->get('wayforpay_order_status_id')
+            ) {
+                //nothing
+            } else {
+                $this->model_checkout_order->confirm($order_id, $this->config->get('wayforpay_order_status_id'));
+            }
+            
             $this->redirect($this->url->link('checkout/success'));
         } else {
 
@@ -175,6 +186,18 @@ class ControllerPaymentWayforpay extends Controller
 
             $this->load->model('checkout/order');
 
+            /**
+             * check current order status if no eq wayforpay_order_status_id then confirm
+             */
+            $orderInfo = $this->model_checkout_order->getOrder($order_id);
+            if (
+                $orderInfo &&
+                $orderInfo['order_status_id'] == $this->config->get('wayforpay_order_status_id')
+            ) {
+                //nothing
+            } else {
+                $this->model_checkout_order->confirm($order_id, $this->config->get('wayforpay_order_status_id'));
+            }
             $this->model_checkout_order->confirm($order_id, $this->config->get('wayforpay_order_status_id'));
 
             echo $w4p->getAnswerToGateWay($data);
@@ -188,6 +211,7 @@ class ControllerPaymentWayforpay extends Controller
 class WayForPay
 {
     const ORDER_APPROVED = 'Approved';
+    const ORDER_HOLD_APPROVED = 'WaitingAuthComplete';
 
     const ORDER_SEPARATOR = '#';
 
@@ -310,7 +334,10 @@ class WayForPay
             return 'An error has occurred during payment';
         }
 
-        if ($response['transactionStatus'] == self::ORDER_APPROVED) {
+        if (
+            $response['transactionStatus'] == self::ORDER_APPROVED ||
+            $response['transactionStatus'] == self::ORDER_HOLD_APPROVED
+           ) {
             return true;
         }
 
